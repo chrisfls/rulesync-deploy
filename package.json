@@ -1,0 +1,27 @@
+{
+  "name": "auto-rulesync",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "auto-rulesync": "./bin/auto-rulesync.mjs"
+  },
+  "engines": {
+    "node": ">=24.19.0"
+  },
+  "scripts": {
+    "deploy": "node src/cli.mts",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test",
+    "check": "npm run typecheck && npm test && openspec validate --all --strict"
+  },
+  "dependencies": {
+    "jsonc-parser": "3.3.1",
+    "rulesync": "43.10.0"
+  },
+  "devDependencies": {
+    "@fission-ai/openspec": "2.1.1",
+    "@types/node": "24.10.0",
+    "typescript": "7.0.2"
+  }
+}

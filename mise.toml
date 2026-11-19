@@ -1,0 +1,20 @@
+[tools]
+node = "24.19.0"
+"npm:rulesync" = "43.10.0"
+"npm:@fission-ai/openspec" = "2.1.1"
+
+[tasks.setup]
+description = "Install the pinned tools and project dependencies"
+run = ["mise install", "npm ci"]
+
+[tasks.deploy]
+description = "Deploy Rulesync to detected agents in a project"
+run = "npm run deploy --"
+
+[tasks.deploy-global]
+description = "Deploy Rulesync to detected agents globally"
+run = "npm run deploy -- --global"
+
+[tasks.check]
+description = "Typecheck, run mechanical tests, and validate OpenSpec"
+run = "npm run check"
