@@ -4,7 +4,7 @@ Deploy an existing Rulesync project to the AI coding agents installed for the cu
 
 ## Run with npx
 
-Run it from any Rulesync project without a global install:
+Run it from any Rulesync project without a global install using the [npm package](https://www.npmjs.com/package/rulesync-deploy):
 
 ```powershell
 npx --yes rulesync-deploy
