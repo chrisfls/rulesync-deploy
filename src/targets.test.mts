@@ -16,9 +16,15 @@ const expectedRulesyncTargets = [
   "warpcli", "xum", "replit", "pi", "omp", "zed", "zcode", "zcode-plugin", "pool", "dsh",
 ];
 
-function fakeHost(files: string[], pathEntries: string[] = []) {
+function fakeHost(
+  files: string[],
+  pathEntries: string[] = [],
+  versions: Record<string, string> = {},
+  directoryEntries: Record<string, string[]> = {},
+) {
   const normalize = (path: string) => resolve(path).replaceAll("\\", "/").toLowerCase();
   const set = new Set(files.map(normalize));
+  const directories = new Map(Object.entries(directoryEntries).map(([path, names]) => [normalize(path), names]));
   return makeDetectorHost({
     homeDir: "C:/Users/tester",
     projectRoot: "C:/work/project",
@@ -26,7 +32,9 @@ function fakeHost(files: string[], pathEntries: string[] = []) {
     platform: "win32",
     pathEntries,
     pathExts: [".EXE", ".CMD"],
+    commandVersion: (command) => versions[command],
     exists: (path) => set.has(normalize(path)),
+    readDirectory: (path) => directories.get(normalize(path)) ?? [],
   });
 }
 
@@ -95,6 +103,56 @@ describe("Rulesync target registry", () => {
     assert.ok(!result.targetIds.includes("roo"));
     assert.ok(result.targetIds.includes("kiro-cli"));
     assert.ok(!result.targetIds.includes("kiro"));
+    assert.deepEqual(result.ambiguous, []);
+  });
+
+  it("reports shared config roots as ambiguous instead of guessing the product", () => {
+    const host = fakeHost([
+      "C:/Users/tester/.kiro",
+      "C:/Users/tester/.roo",
+      "C:/Users/tester/.config/opencode",
+      "C:/Users/tester/.gemini",
+      "C:/Users/tester/.warp",
+      "C:/Users/tester/.tabnine",
+    ]);
+    const result = detectTargets(host);
+
+    assert.deepEqual(result.targetIds, []);
+    assert.ok(result.ambiguous.includes("Kiro CLI vs Kiro IDE"));
+    assert.ok(result.ambiguous.includes("Roo Code vs Zoo Code"));
+    assert.ok(result.ambiguous.includes("OpenCode V1 vs OpenCode (shared configuration directory)"));
+    assert.ok(result.ambiguous.includes("Antigravity CLI vs IDE (or Gemini CLI)"));
+    assert.ok(result.ambiguous.includes("Warp vs Warp Agent CLI"));
+    assert.ok(result.ambiguous.includes("Tabnine CLI version"));
+  });
+
+  it("uses the OpenCode executable version to choose the matching native target", () => {
+    const configPath = "C:/Users/tester/.config/opencode";
+    const v1 = detectTargets(fakeHost([configPath, "C:/bin/opencode.exe"], ["C:/bin"], { opencode: "OpenCode v1.9.4" }));
+    const v2 = detectTargets(fakeHost([configPath, "C:/bin/opencode.exe"], ["C:/bin"], { opencode: "OpenCode v2.3.0" }));
+
+    assert.ok(v1.targetIds.includes("opencodev1"));
+    assert.ok(!v1.targetIds.includes("opencode"));
+    assert.ok(v2.targetIds.includes("opencode"));
+    assert.ok(!v2.targetIds.includes("opencodev1"));
+    assert.deepEqual(v1.ambiguous, []);
+    assert.deepEqual(v2.ambiguous, []);
+  });
+
+  it("detects the Kiro IDE from its app installation path", () => {
+    const result = detectTargets(fakeHost(["C:/Users/tester/AppData/Local/Programs/Kiro"]));
+    assert.ok(result.targetIds.includes("kiro-ide"));
+    assert.ok(!result.targetIds.includes("kiro-cli"));
+  });
+
+  it("detects Roo Code from its installed VS Code extension marker", () => {
+    const extensionDir = "C:/Users/tester/.vscode/extensions";
+    const result = detectTargets(fakeHost([], [], {}, {
+      [extensionDir]: ["rooveterinaryinc.roo-cline-3.40.0"],
+    }));
+
+    assert.ok(result.targetIds.includes("roo"));
+    assert.ok(!result.ambiguous.includes("Roo Code vs Zoo Code"));
   });
 
   it("reports detected tools without a native Rulesync target", () => {

@@ -80,3 +80,8 @@ The CLI SHALL report recognized agents that have no native Rulesync target. In g
 
 - **WHEN** a plugin-only target's project directory exists and global scope is selected
 - **THEN** the CLI reports that target as unavailable globally and omits it
+
+#### Scenario: Shared configuration does not identify the installed product
+
+- **WHEN** a shared configuration directory exists without a product-specific executable, installation path, or extension marker
+- **THEN** the CLI reports the ambiguity and does not infer one of the colliding targets

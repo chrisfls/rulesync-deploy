@@ -60,8 +60,11 @@ export function deploy(options: CliOptions): void {
   if (detection.globalUnavailable.length > 0) {
     process.stdout.write(`Skipped project-only targets in global mode: ${detection.globalUnavailable.join(", ")}\n`);
   }
+  if (detection.ambiguous.length > 0) {
+    process.stdout.write(`Ambiguous installations skipped: ${detection.ambiguous.join(", ")}\n`);
+  }
   if (detection.targetIds.length === 0) {
-    throw new Error("No supported installed Rulesync targets were detected.");
+    throw new Error("No supported installed Rulesync targets were detected. Resolve any ambiguous installations or install an agent with a distinct detection signal.");
   }
 
   const targetIds = includeStandardTargets(detection.targetIds, options.root, options.global, config, localConfig);

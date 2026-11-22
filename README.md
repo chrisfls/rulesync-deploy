@@ -32,7 +32,7 @@ The `mise run deploy` and `mise run deploy-global` tasks are also available for 
 
 Project deployment always updates `.gitignore` for all generated Rulesync files. Global deployment does not modify `.gitignore`. Deployment is explicit; no Git hook runs it automatically.
 
-The target registry follows the complete native target list in the pinned Rulesync release. Agent-specific targets are included when a matching CLI or user configuration directory is detected. The `agentsmd` and `agentsskills` open standards are included when the selected project uses those formats or their corresponding existing paths are detected. Plugin-only targets are considered when their project plugin directory exists, and are unavailable in global mode.
+The target registry follows the complete native target list in the pinned Rulesync release. Agent-specific targets are included when a matching CLI, app installation directory, or product-specific editor extension is detected. Shared config directories such as `.kiro`, `.roo`, `.gemini`, and `.warp` are reported as ambiguous unless a product-specific signal distinguishes the installed agent. Open standards are included when their source format or corresponding existing paths are detected. Plugin-only targets are considered when their project plugin directory exists, and are unavailable in global mode.
 
 ## Development
 
