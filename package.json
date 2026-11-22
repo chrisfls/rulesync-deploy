@@ -1,6 +1,6 @@
 {
   "name": "rulesync-deploy",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Deploy Rulesync projects to all agents installed on your machine.",
   "type": "module",
   "repository": {
