@@ -3,6 +3,7 @@ import { fileURLToPath } from "node:url";
 import { detectTargets, makeDetectorHost } from "./targets.mts";
 import {
   buildRulesyncCommands,
+  configuredTargetIds,
   includeStandardTargets,
   runPinnedRulesync,
   runRulesyncCommands,
@@ -49,7 +50,11 @@ export function parseArgs(args: string[], cwd = process.cwd()): CliOptions | "he
 
 export function deploy(options: CliOptions): void {
   const { config, localConfig } = validateRulesyncProject(options.root);
-  const detection = detectTargets(makeDetectorHost({ projectRoot: options.root }), options.global);
+  const detection = detectTargets(
+    makeDetectorHost({ projectRoot: options.root }),
+    options.global,
+    configuredTargetIds(config, localConfig),
+  );
 
   if (detection.detected.length > 0) {
     process.stdout.write(`Detected agents: ${detection.detected.join(", ")}\n`);
@@ -59,6 +64,9 @@ export function deploy(options: CliOptions): void {
   }
   if (detection.globalUnavailable.length > 0) {
     process.stdout.write(`Skipped project-only targets in global mode: ${detection.globalUnavailable.join(", ")}\n`);
+  }
+  if (detection.skippedPlugins.length > 0) {
+    process.stdout.write(`Plugin targets skipped (list them in rulesync.jsonc targets to deploy): ${detection.skippedPlugins.join(", ")}\n`);
   }
   if (detection.ambiguous.length > 0) {
     process.stdout.write(`Ambiguous installations skipped: ${detection.ambiguous.join(", ")}\n`);

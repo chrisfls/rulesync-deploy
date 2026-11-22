@@ -8,7 +8,7 @@ Detect installed AI agent targets supported by Rulesync and deploy an existing R
 
 ### Requirement: Detect installed Rulesync targets
 
-The CLI SHALL detect a target when its executable is available on `PATH` or a registered user configuration directory exists. The target registry SHALL cover every native target in the Rulesync release pinned by `mise.toml`.
+The CLI SHALL detect an agent or open-standard target when its executable is available on `PATH` or a registered user configuration directory exists. The target registry SHALL cover every native target in the Rulesync release pinned by `mise.toml`. Plugin packaging targets follow the opt-in requirement instead.
 
 #### Scenario: Agent executable is installed
 
@@ -53,6 +53,20 @@ The package SHALL expose `rulesync-deploy` as an npm executable and include all 
 - **WHEN** npm installs `rulesync` beside `rulesync-deploy` rather than inside its `node_modules`
 - **THEN** the CLI finds the Rulesync executable through Node module resolution and runs it
 
+### Requirement: Deploy plugin targets only on opt-in
+
+The CLI SHALL include a plugin packaging target only when the project names that target in `targets` of `rulesync.jsonc` or `rulesync.local.jsonc`, as an array entry or an object key. A plugin manifest in the project SHALL NOT select a plugin target. The CLI SHALL report plugin targets whose project manifest exists but that the project does not name, and SHALL omit them from generation and gitignore updates.
+
+#### Scenario: Project ships a plugin without opting in
+
+- **WHEN** the project contains `.claude-plugin/plugin.json` and its Rulesync configurations do not name `claudecode-plugin` in `targets`
+- **THEN** the CLI reports Claude Code plugin as skipped and does not pass `claudecode-plugin` to Rulesync
+
+#### Scenario: Project opts in to a plugin target
+
+- **WHEN** `rulesync.jsonc` or `rulesync.local.jsonc` names `claudecode-plugin` in `targets` and project scope is selected
+- **THEN** the CLI passes `claudecode-plugin` to Rulesync
+
 ### Requirement: Install locked sources before generation
 
 The CLI SHALL run `rulesync install --frozen` when the selected project's base or local configuration declares sources. It SHALL stop when installation fails.
@@ -83,16 +97,16 @@ The CLI SHALL run `rulesync gitignore` for every detected target and all support
 
 ### Requirement: Report unsupported or unavailable targets
 
-The CLI SHALL report recognized agents that have no native Rulesync target. In global scope it SHALL report detected project-only plugin targets and omit them from generation.
+The CLI SHALL report recognized agents that have no native Rulesync target. In global scope it SHALL report opted-in project-only plugin targets and omit them from generation.
 
 #### Scenario: Unsupported harness is installed
 
 - **WHEN** a recognized harness has no native Rulesync target
 - **THEN** its name is reported as unsupported
 
-#### Scenario: Plugin target is detected in global scope
+#### Scenario: Plugin target is opted in under global scope
 
-- **WHEN** a plugin-only target's project directory exists and global scope is selected
+- **WHEN** the project names a plugin-only target in `targets` and global scope is selected
 - **THEN** the CLI reports that target as unavailable globally and omits it
 
 #### Scenario: Shared configuration does not identify the installed product

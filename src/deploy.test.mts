@@ -6,6 +6,7 @@ import { afterEach, describe, it } from "node:test";
 import { pathToFileURL } from "node:url";
 import {
   buildRulesyncCommands,
+  configuredTargetIds,
   hasDeclaredSources,
   includeStandardTargets,
   parseRulesyncConfig,
@@ -38,6 +39,14 @@ describe("Rulesync deployment", () => {
     assert.equal(hasDeclaredSources({ sources: [{ source: "owner/repo" }] }), true);
     assert.equal(hasDeclaredSources({}, { sources: [{ source: "owner/repo" }] }), true);
     assert.equal(hasDeclaredSources({ sources: [] }), false);
+  });
+
+  it("collects target IDs from array and object targets in both configurations", () => {
+    assert.deepEqual(
+      configuredTargetIds({ targets: ["claudecode", "kimi-code-plugin"] }, { targets: { "claudecode-plugin": ["skills"] } }),
+      ["claudecode", "kimi-code-plugin", "claudecode-plugin"],
+    );
+    assert.deepEqual(configuredTargetIds({}), []);
   });
 
   it("finds the rulesync CLI when npm hoists it beside rulesync-deploy or nests it", () => {

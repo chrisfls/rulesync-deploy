@@ -68,7 +68,7 @@ The CLI also:
 
 - Includes open standards such as `AGENTS.md` and agent skills when the project's sources or existing paths make them applicable.
 - Reports recognized agents for which Rulesync has no native target.
-- Includes plugin targets only when the corresponding project plugin directory exists. Plugin targets and other project-only targets are skipped in global mode.
+- Includes a plugin packaging target, such as `claudecode-plugin`, only when `targets` in `rulesync.jsonc` or `rulesync.local.jsonc` names it. A plugin manifest in the project, such as `.claude-plugin/plugin.json`, does not select the target; the CLI reports it as skipped. Plugin targets and other project-only targets are skipped in global mode.
 
 If no supported installed target is detected, deployment stops with an error instead of generating a target arbitrarily.
 

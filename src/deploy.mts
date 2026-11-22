@@ -46,6 +46,19 @@ export function hasDeclaredSources(config: RulesyncConfig, localConfig?: Rulesyn
   return hasSources(config) || hasSources(localConfig);
 }
 
+export function configuredTargetIds(config: RulesyncConfig, localConfig?: RulesyncConfig): string[] {
+  const ids = new Set<string>();
+  for (const value of [config, localConfig]) {
+    const targets = value?.targets;
+    if (Array.isArray(targets)) {
+      for (const id of targets) if (typeof id === "string") ids.add(id);
+    } else if (targets !== null && typeof targets === "object") {
+      for (const id of Object.keys(targets)) ids.add(id);
+    }
+  }
+  return [...ids];
+}
+
 function hasFileNamed(directory: string, name: string): boolean {
   if (!existsSync(directory)) return false;
   for (const entry of readdirSync(directory, { withFileTypes: true })) {

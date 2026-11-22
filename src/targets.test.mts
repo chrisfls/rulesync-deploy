@@ -77,17 +77,27 @@ describe("Rulesync target registry", () => {
     assert.deepEqual(result.targetIds, ["agentsmd", "agentsskills"]);
   });
 
-  it("selects project plugin targets only in project mode", () => {
-    const host = fakeHost([
-      "C:/Users/tester/.claude",
-      "C:/work/project/.claude-plugin/plugin.json",
-    ]);
-    const local = detectTargets(host);
-    const global = detectTargets(host, true);
+  it("selects configured plugin targets only in project mode", () => {
+    const host = fakeHost(["C:/Users/tester/.claude"]);
+    const local = detectTargets(host, false, ["claudecode-plugin"]);
+    const global = detectTargets(host, true, ["claudecode-plugin"]);
 
     assert.ok(local.targetIds.includes("claudecode-plugin"));
     assert.ok(global.globalUnavailable.includes("Claude Code plugin"));
     assert.ok(!global.targetIds.includes("claudecode-plugin"));
+  });
+
+  it("skips plugin targets whose manifests exist but are not configured", () => {
+    const host = fakeHost([
+      "C:/Users/tester/.claude",
+      "C:/work/project/.claude-plugin/plugin.json",
+      "C:/work/project/.kimi-plugin/plugin.json",
+    ]);
+    const result = detectTargets(host, false, ["claudecode", "kimi-code"]);
+
+    assert.deepEqual(result.targetIds, ["claudecode"]);
+    assert.deepEqual(result.detected, ["Claude Code"]);
+    assert.deepEqual(result.skippedPlugins, ["Claude Code plugin", "Kimi Code plugin"]);
   });
 
   it("avoids mutually exclusive deprecated and replacement targets", () => {
@@ -163,11 +173,11 @@ describe("Rulesync target registry", () => {
     assert.deepEqual(result.targetIds, []);
   });
 
-  it("uses project plugin roots rather than user paths for plugin detection", () => {
-    const host = fakeHost(["C:/work/project/.zcode-plugin/plugin.json"]);
+  it("uses project plugin roots rather than user paths to report skipped plugins", () => {
+    const host = fakeHost(["C:/work/project/.zcode-plugin/plugin.json", "C:/Users/tester/.kimi-plugin/plugin.json"]);
     const result = detectTargets(host);
 
-    assert.ok(result.targetIds.includes("zcode-plugin"));
-    assert.deepEqual(result.detected, ["ZCode plugin"]);
+    assert.deepEqual(result.targetIds, []);
+    assert.deepEqual(result.skippedPlugins, ["ZCode plugin"]);
   });
 });

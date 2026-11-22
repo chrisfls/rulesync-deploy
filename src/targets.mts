@@ -17,6 +17,7 @@ export interface TargetDefinition {
 
 // Keep this list aligned with Rulesync's Supported Tools reference. Plugin
 // targets are project-scoped because Rulesync requires a plugin output root.
+// Their project paths only report plugins that the project has not opted in.
 export const TARGETS: TargetDefinition[] = [
   { id: "agentsmd", name: "AGENTS.md", kind: "standard", projectPaths: ["AGENTS.md"] },
   { id: "agentsskills", name: "AgentsSkills", kind: "standard", homePaths: [".agents/skills"] },
@@ -110,6 +111,7 @@ export interface DetectionResult {
   unsupported: string[];
   globalUnavailable: string[];
   ambiguous: string[];
+  skippedPlugins: string[];
 }
 
 const UNSUPPORTED_HARNESSES = [
@@ -246,10 +248,18 @@ export function makeDetectorHost(overrides: Partial<DetectorHost> = {}): Detecto
   };
 }
 
-export function detectTargets(host = makeDetectorHost(), global = false): DetectionResult {
+export function detectTargets(host = makeDetectorHost(), global = false, configuredIds: string[] = []): DetectionResult {
   const openCode = detectOpenCode(host);
-  const found = TARGETS.filter((target) => target.id !== "opencode" && target.id !== "opencodev1" && targetDetected(host, target));
-  const ids = resolveTargetAliases([...found.map((target) => target.id), ...(openCode.target ? [openCode.target] : [])]);
+  const configured = new Set(configuredIds);
+  const plugins = TARGETS.filter((target) => target.kind === "plugin");
+  const optedInPlugins = plugins.filter((target) => configured.has(target.id));
+  const skippedPlugins = plugins.filter((target) => !configured.has(target.id) && targetDetected(host, target));
+  const found = TARGETS.filter((target) => target.kind !== "plugin" && target.id !== "opencode" && target.id !== "opencodev1" && targetDetected(host, target));
+  const ids = resolveTargetAliases([
+    ...found.map((target) => target.id),
+    ...optedInPlugins.map((target) => target.id),
+    ...(openCode.target ? [openCode.target] : []),
+  ]);
   const globalUnavailable = global ? ids.filter((id) => projectOnlyIds.has(id)) : [];
   const installable = global ? ids.filter((id) => !projectOnlyIds.has(id)) : [...ids];
   const targetIds = [...new Set(installable)];
@@ -267,6 +277,7 @@ export function detectTargets(host = makeDetectorHost(), global = false): Detect
     unsupported,
     globalUnavailable: globalUnavailable.map((id) => byId.get(id) ?? id),
     ambiguous,
+    skippedPlugins: skippedPlugins.map((target) => target.name),
   };
 }
 
