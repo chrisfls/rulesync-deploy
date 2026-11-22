@@ -1,7 +1,7 @@
 {
   "name": "rulesync-deploy",
-  "version": "0.1.1",
-  "description": "Detect installed AI coding agents and deploy a Rulesync project to them",
+  "version": "0.1.2",
+  "description": "Deploy Rulesync projects to all agents installed on your machine.",
   "type": "module",
   "repository": {
     "type": "git",
