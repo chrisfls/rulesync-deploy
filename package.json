@@ -1,6 +1,6 @@
 {
   "name": "rulesync-deploy",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Detect installed AI coding agents and deploy a Rulesync project to them",
   "type": "module",
   "repository": {
@@ -14,12 +14,12 @@
   "license": "MIT",
   "files": [
     "bin/",
-    "src/cli.mts",
-    "src/deploy.mts",
-    "src/targets.mts"
+    "dist/cli.mjs",
+    "dist/deploy.mjs",
+    "dist/targets.mjs"
   ],
   "bin": {
-    "rulesync-deploy": "./bin/rulesync-deploy.mjs"
+    "rulesync-deploy": "bin/rulesync-deploy.mjs"
   },
   "engines": {
     "node": ">=24.19.0"
@@ -27,8 +27,10 @@
   "scripts": {
     "deploy": "node src/cli.mts",
     "typecheck": "tsc --noEmit",
-    "test": "node --test",
-    "check": "npm run typecheck && npm test && openspec validate --all --strict"
+    "build": "tsc --project tsconfig.build.json",
+    "test": "node --test \"src/*.test.mts\"",
+    "prepack": "npm run build",
+    "check": "npm run typecheck && npm run build && npm test && openspec validate --all --strict"
   },
   "dependencies": {
     "jsonc-parser": "3.3.1",
