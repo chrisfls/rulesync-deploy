@@ -1,10 +1,24 @@
 {
-  "name": "auto-rulesync",
+  "name": "rulesync-deploy",
   "version": "0.1.0",
-  "private": true,
+  "description": "Detect installed AI coding agents and deploy a Rulesync project to them",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chrisfls/rulesync-deploy.git"
+  },
+  "homepage": "https://github.com/chrisfls/rulesync-deploy#readme",
+  "bugs": {
+    "url": "https://github.com/chrisfls/rulesync-deploy/issues"
+  },
+  "files": [
+    "bin/",
+    "src/cli.mts",
+    "src/deploy.mts",
+    "src/targets.mts"
+  ],
   "bin": {
-    "auto-rulesync": "./bin/auto-rulesync.mjs"
+    "rulesync-deploy": "./bin/rulesync-deploy.mjs"
   },
   "engines": {
     "node": ">=24.19.0"

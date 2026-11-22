@@ -1,8 +1,26 @@
-# auto-rulesync
+# rulesync-deploy
 
 Deploy an existing Rulesync project to the AI coding agents installed for the current user. The deployer reads the selected project's `.rulesync/` sources and `rulesync.jsonc`, detects installed agents, then asks Rulesync to generate those native targets.
 
-## Requirements
+## Run with npx
+
+The package is prepared for npm distribution. After its first npm release, run it from any Rulesync project without a global install:
+
+```powershell
+npx --yes rulesync-deploy
+npx --yes rulesync-deploy --global
+```
+
+Until the npm package is published, run the current GitHub version directly:
+
+```powershell
+npx --yes --package=github:chrisfls/rulesync-deploy -- rulesync-deploy
+npx --yes --package=github:chrisfls/rulesync-deploy -- rulesync-deploy --global
+```
+
+The first run downloads the CLI and its dependencies into npm's cache. Node.js 24.19.0 or newer is required.
+
+## Development requirements
 
 - [mise](https://mise.jdx.dev/)
 - Git
@@ -18,14 +36,14 @@ npm link
 
 ## Deploy
 
-After `npm link`, run `auto-rulesync` from any Rulesync project. By default, the current directory is the project to deploy. Use `--root` to select another project and `--global` to write user-level agent configuration.
+After `npm link`, run `rulesync-deploy` from any Rulesync project. By default, the current directory is the project to deploy. Use `--root` to select another project and `--global` to write user-level agent configuration.
 
 ```powershell
 # Project files and .gitignore
-auto-rulesync
+rulesync-deploy
 
 # Global user configuration from the selected project's sources
-auto-rulesync --global
+rulesync-deploy --global
 ```
 
 The `mise run deploy` and `mise run deploy-global` tasks are also available for development; pass `--root <path>` to deploy a different project from this checkout.

@@ -9,7 +9,7 @@ import { afterEach, describe, it } from "node:test";
 const tempDirectories: string[] = [];
 
 function createFixture(): { root: string; home: string } {
-  const root = mkdtempSync(join(tmpdir(), "auto-rulesync-e2e-"));
+  const root = mkdtempSync(join(tmpdir(), "rulesync-deploy-e2e-"));
   const home = join(root, "home");
   tempDirectories.push(root);
   mkdirSync(join(root, ".rulesync", "rules"), { recursive: true });

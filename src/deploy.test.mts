@@ -15,7 +15,7 @@ import {
 const tempDirectories: string[] = [];
 
 function tempProject(): string {
-  const root = mkdtempSync(join(tmpdir(), "auto-rulesync-"));
+  const root = mkdtempSync(join(tmpdir(), "rulesync-deploy-"));
   tempDirectories.push(root);
   mkdirSync(join(root, ".rulesync", "rules"), { recursive: true });
   writeFileSync(join(root, "rulesync.jsonc"), '{"targets": {"agentsmd": ["rules"]}}\n');
@@ -69,7 +69,7 @@ describe("Rulesync deployment", () => {
   });
 
   it("requires a Rulesync project config and source directory", () => {
-    const root = mkdtempSync(join(tmpdir(), "auto-rulesync-invalid-"));
+    const root = mkdtempSync(join(tmpdir(), "rulesync-deploy-invalid-"));
     tempDirectories.push(root);
     assert.throws(() => validateRulesyncProject(root), /No rulesync\.jsonc found/);
 

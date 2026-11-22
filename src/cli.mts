@@ -16,7 +16,7 @@ interface CliOptions {
 
 function usage(): string {
   return [
-    "Usage: auto-rulesync [--root <rulesync-project>] [--global]",
+    "Usage: rulesync-deploy [--root <rulesync-project>] [--global]",
     "",
     "Detect installed Rulesync targets and deploy the selected project's configuration.",
     "  --root <path>  Rulesync project to deploy (default: current directory)",
@@ -76,7 +76,7 @@ export function deploy(options: CliOptions): void {
     localConfig,
   });
   runRulesyncCommands(commands, options.root, runPinnedRulesync);
-  process.stdout.write(`auto-rulesync: deployed ${targetIds.length} target(s) ${options.global ? "globally" : "to the project"}.\n`);
+  process.stdout.write(`rulesync-deploy: deployed ${targetIds.length} target(s) ${options.global ? "globally" : "to the project"}.\n`);
 }
 
 export function main(): void {
@@ -88,7 +88,7 @@ export function main(): void {
     }
     deploy(options);
   } catch (error) {
-    process.stderr.write(`auto-rulesync: ${error instanceof Error ? error.message : String(error)}\n`);
+    process.stderr.write(`rulesync-deploy: ${error instanceof Error ? error.message : String(error)}\n`);
     process.exitCode = 1;
   }
 }

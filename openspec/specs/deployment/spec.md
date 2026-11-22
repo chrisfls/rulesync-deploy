@@ -39,6 +39,15 @@ The CLI SHALL use the current directory by default and SHALL accept `--root <pat
 - **WHEN** the CLI runs with `--global`
 - **THEN** it runs Rulesync generation for the detected targets in user scope
 
+### Requirement: Run as an ephemeral npm command
+
+The package SHALL expose `rulesync-deploy` as an npm executable and include all runtime files and dependencies needed to run it from an npm package cache, without a global installation or checkout in the user's project.
+
+#### Scenario: Run from an existing Rulesync project
+
+- **WHEN** a user invokes the published package with `npx rulesync-deploy` from a Rulesync project
+- **THEN** the CLI uses that working directory as the project root and runs normally
+
 ### Requirement: Install locked sources before generation
 
 The CLI SHALL run `rulesync install --frozen` when the selected project's base or local configuration declares sources. It SHALL stop when installation fails.
