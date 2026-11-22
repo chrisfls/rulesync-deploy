@@ -11,6 +11,7 @@
   "bugs": {
     "url": "https://github.com/chrisfls/rulesync-deploy/issues"
   },
+  "license": "MIT",
   "files": [
     "bin/",
     "src/cli.mts",

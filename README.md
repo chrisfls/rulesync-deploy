@@ -4,18 +4,11 @@ Deploy an existing Rulesync project to the AI coding agents installed for the cu
 
 ## Run with npx
 
-The package is prepared for npm distribution. After its first npm release, run it from any Rulesync project without a global install:
+Run it from any Rulesync project without a global install:
 
 ```powershell
 npx --yes rulesync-deploy
 npx --yes rulesync-deploy --global
-```
-
-Until the npm package is published, run the current GitHub version directly:
-
-```powershell
-npx --yes --package=github:chrisfls/rulesync-deploy -- rulesync-deploy
-npx --yes --package=github:chrisfls/rulesync-deploy -- rulesync-deploy --global
 ```
 
 The first run downloads the CLI and its dependencies into npm's cache. Node.js 24.19.0 or newer is required.
