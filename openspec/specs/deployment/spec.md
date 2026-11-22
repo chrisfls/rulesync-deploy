@@ -48,6 +48,11 @@ The package SHALL expose `rulesync-deploy` as an npm executable and include all 
 - **WHEN** a user invokes the published package with `npx rulesync-deploy` from a Rulesync project
 - **THEN** the CLI uses that working directory as the project root and runs normally
 
+#### Scenario: npm hoists the Rulesync dependency
+
+- **WHEN** npm installs `rulesync` beside `rulesync-deploy` rather than inside its `node_modules`
+- **THEN** the CLI finds the Rulesync executable through Node module resolution and runs it
+
 ### Requirement: Install locked sources before generation
 
 The CLI SHALL run `rulesync install --frozen` when the selected project's base or local configuration declares sources. It SHALL stop when installation fails.

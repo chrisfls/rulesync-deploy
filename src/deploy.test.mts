@@ -3,11 +3,13 @@ import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, it } from "node:test";
+import { pathToFileURL } from "node:url";
 import {
   buildRulesyncCommands,
   hasDeclaredSources,
   includeStandardTargets,
   parseRulesyncConfig,
+  resolveRulesyncCli,
   runRulesyncCommands,
   validateRulesyncProject,
 } from "./deploy.mts";
@@ -36,6 +38,23 @@ describe("Rulesync deployment", () => {
     assert.equal(hasDeclaredSources({ sources: [{ source: "owner/repo" }] }), true);
     assert.equal(hasDeclaredSources({}, { sources: [{ source: "owner/repo" }] }), true);
     assert.equal(hasDeclaredSources({ sources: [] }), false);
+  });
+
+  it("finds the rulesync CLI when npm hoists it beside rulesync-deploy or nests it", () => {
+    const root = mkdtempSync(join(tmpdir(), "rulesync-deploy-layout-"));
+    tempDirectories.push(root);
+    const packageRoot = join(root, "node_modules", "rulesync-deploy");
+    const fromUrl = pathToFileURL(join(packageRoot, "dist", "deploy.mjs"));
+    const writeRulesync = (directory: string) => {
+      mkdirSync(directory, { recursive: true });
+      writeFileSync(join(directory, "package.json"), '{"name":"rulesync","bin":{"rulesync":"dist/cli/index.js"}}');
+    };
+
+    writeRulesync(join(root, "node_modules", "rulesync"));
+    assert.equal(resolveRulesyncCli(fromUrl), join(root, "node_modules", "rulesync", "dist", "cli", "index.js"));
+
+    writeRulesync(join(packageRoot, "node_modules", "rulesync"));
+    assert.equal(resolveRulesyncCli(fromUrl), join(packageRoot, "node_modules", "rulesync", "dist", "cli", "index.js"));
   });
 
   it("adds open-standard targets only when the source project uses them", () => {

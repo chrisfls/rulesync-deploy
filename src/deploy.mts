@@ -1,8 +1,8 @@
 import { parse, printParseErrorCode, type ParseError } from "jsonc-parser";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
-import { resolve } from "node:path";
+import { createRequire } from "node:module";
+import { join, resolve } from "node:path";
 import { spawnSync } from "node:child_process";
-import { fileURLToPath } from "node:url";
 
 export interface RulesyncConfig {
   sources?: unknown;
@@ -123,9 +123,24 @@ export function runRulesyncCommands(commands: RulesyncCommand[], root: string, r
   }
 }
 
+// Rulesync's exports do not include package.json, so look for the package
+// directory along Node's module search paths, which covers nested and hoisted
+// installs.
+export function resolveRulesyncCli(fromUrl: string | URL = import.meta.url): string {
+  for (const directory of createRequire(fromUrl).resolve.paths("rulesync") ?? []) {
+    const packageRoot = join(directory, "rulesync");
+    const manifestPath = join(packageRoot, "package.json");
+    if (!existsSync(manifestPath)) continue;
+    const manifest = JSON.parse(readFileSync(manifestPath, "utf8")) as { bin?: string | Record<string, string> };
+    const bin = typeof manifest.bin === "string" ? manifest.bin : manifest.bin?.rulesync;
+    if (!bin) throw new Error(`${manifestPath} does not declare a rulesync executable.`);
+    return resolve(packageRoot, bin);
+  }
+  throw new Error("Could not find the rulesync package.");
+}
+
 export function runPinnedRulesync(args: string[], cwd: string): CommandResult {
-  const packageRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
-  const cliPath = resolve(packageRoot, "node_modules/rulesync/dist/cli/index.js");
+  const cliPath = resolveRulesyncCli();
   const result = spawnSync(process.execPath, [cliPath, ...args], {
     cwd,
     encoding: "utf8",
